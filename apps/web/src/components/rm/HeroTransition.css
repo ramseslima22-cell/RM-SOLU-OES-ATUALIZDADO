@@ -1,0 +1,11 @@
+/* Motion-only overlap: original section dimensions and document flow are unchanged. */
+.rm-hero-static[data-handoff-enabled="true"] { z-index:2; }
+.rm-hero-atmosphere-blend,.rm-ecosystem-atmosphere-blend { position:absolute; inset:0; z-index:-2; pointer-events:none; background:#10151f; }
+.rm-scene-bridge { position:absolute; left:0; bottom:-160px; width:100%; height:320px; z-index:3; overflow:visible; pointer-events:none; mask-image:linear-gradient(transparent,#000 24% 76%,transparent); }
+.rm-scene-bridge[data-active="false"] { visibility:hidden; }
+@media(max-width:900px),(hover:none),(pointer:coarse) {
+ .rm-scene-bridge { bottom:-70px; height:140px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .rm-scene-bridge,.rm-hero-atmosphere-blend { display:none; }
+}

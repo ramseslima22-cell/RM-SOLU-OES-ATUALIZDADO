@@ -1,36 +1,81 @@
-﻿import React, { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion, useMotionValue, useSpring, useInView } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useTransform, useReducedMotion } from 'framer-motion';
 import { ArrowDown, ArrowUpRight, Globe, ShoppingBag, Workflow, Layers, Zap, MessageSquare, Contact } from 'lucide-react';
 import RmLogo from './RmLogo';
+import DigitalAtmosphere from './DigitalAtmosphere';
+import { EcosystemArrivalAtmosphere, useHeroTransition } from './HeroTransition';
+import { HeroObject, HeroScenery, useFineMotion, FloatingLayer, useHeroMotion, useSceneActive, useSceneScroll } from './HeroMotion';
 const chapters = [
  ['Sites', 'Uma presença à altura da sua ideia.', 'Sua marca ganha um lugar próprio no digital.', Globe],
  ['Lojas virtuais', 'Da descoberta à próxima compra.', 'Uma experiência pensada para apresentar e vender.', ShoppingBag],
  ['Automações', 'Mais fluidez. Menos tarefas manuais.', 'Processos conectados para simplificar a sua rotina.', Workflow],
  ['Soluções digitais', 'Tudo se conecta. Seu negócio evolui.', 'Sites, lojas e automações em um mesmo ecossistema.', Layers],
 ];
-function SceneLayer({ index, progress, reduced }) {
- const opacity = useTransform(progress, [0, .25, .52, .8, 1], index === 0 ? [1,1,1,1,1] : index === 1 ? [0,1,1,1,1] : [0,0,1,1,1]);
- const y = useTransform(progress, [0, .4, 1], [index*12, index*-35, index*-66]);
- const x = useTransform(progress, [0,1], [0,index*36]);
- return <motion.div className={`ecosystem-layer layer-${index}`} style={reduced ? {} : {opacity,y,x,z:index*65}}>
-  <div className="layer-toolbar"><span>RM / {['PRESENÇA','COMÉRCIO','CONEXÕES'][index]}</span><ArrowUpRight size={16}/></div>
-  {index === 0 ? <div className="scene-site"><span className="scene-eyebrow">SUA PRÓXIMA POSSIBILIDADE</span><strong>Sua ideia.<br/><em>No digital.</em></strong><div className="scene-lines"><i/><i/></div><span className="scene-button">Começar <ArrowUpRight size={15}/></span></div> : index === 1 ? <div className="scene-products">{[1,2,3].map(n=><div key={n}><ShoppingBag strokeWidth={1}/><span>Catálogo / 0{n}</span></div>)}</div> : <div className="scene-workflow"><span>Entrada</span><i/><Workflow/><i/><span>Ação</span></div>}
+
+// Monotone cubic Hermite tracks: continuous velocity, no overshoot and no spring catch-up.
+// Tangents are precomputed once; all layers and the camera read the same native scroll progress.
+function track(stops,values) {
+ const widths = stops.slice(1).map((t,i) => t-stops[i]);
+ const slopes = widths.map((width,i) => (values[i+1]-values[i])/width);
+ const tangents = values.map((_,i) => {
+  if (i===0 || i===values.length-1 || slopes[i-1]*slopes[i]<=0) return 0;
+  const a=2*widths[i]+widths[i-1], b=widths[i]+2*widths[i-1];
+  return (a+b)/(a/slopes[i-1]+b/slopes[i]);
+ });
+ return progress => {
+  const p=Math.max(stops[0],Math.min(stops.at(-1),progress));
+  let i=0;
+  while(i<stops.length-2 && p>stops[i+1]) i++;
+  const t=(p-stops[i])/widths[i], t2=t*t, t3=t2*t;
+  return (2*t3-3*t2+1)*values[i]+(t3-2*t2+t)*widths[i]*tangents[i]+(-2*t3+3*t2)*values[i+1]+(t3-t2)*widths[i]*tangents[i+1];
+ };
+}
+const beats = [0,.28,.62,1];
+const camera = {
+ x:track(beats,[9,18,24,12]), y:track(beats,[-16,-21,-26,-26]),
+ z:track(beats,[-4,-2,0,2]), depth:track(beats,[0,12,24,0]),
+};
+const layers = [0,1,2].map(index => ({
+ x:track(beats,[0,index*12,index*25,index*36]),
+ y:track(beats,[index*12,index*-22,index*-47,index*-66]),
+ z:track(beats,[index*65,index*65+(index===1?22:-8),index*65+(index===2?28:-12),index*65]),
+ scale:track(beats,index===0?[1,1.025,.98,1]:index===1?[.98,1.04,1,1]:[.97,.98,1.05,1]),
+ rotate:track(beats,[0,index===1?-3:2,index===2?-3:1,0]),
+ opacity:index===0?track(beats,[1,.88,.8,1]):index===1?track([0,.28,.62,1],[0,1,.88,1]):track([0,.14,.5,.72,1],[0,0,.88,1,1]),
+}));
+function SceneLayer({ index,progress,reduced,desktop,visible }) {
+ const tracks=layers[index];
+ const transform=useTransform(progress,p => desktop
+  ? `translate3d(${tracks.x(p)}px, ${tracks.y(p)}px, ${tracks.z(p)}px) rotateY(${tracks.rotate(p)}deg) scale(${tracks.scale(p)})`
+  : `translate3d(${tracks.x(p)*.55}px, ${tracks.y(p)}px, 0px) scale(${1+(tracks.scale(p)-1)*.35})`);
+ const opacity=useTransform(progress,tracks.opacity);
+ return <motion.div className="rm-ecosystem-plane" style={reduced ? undefined : {transform}}>
+  <FloatingLayer index={index+1} desktop={desktop} reduced={reduced} visible={visible}>
+   <motion.div className={`ecosystem-layer layer-${index}`} style={reduced ? undefined : {opacity}}>
+    <div className="layer-toolbar"><span>RM / {['PRESENÇA','COMÉRCIO','CONEXÕES'][index]}</span><ArrowUpRight size={16}/></div>
+    {index===0 ? <div className="scene-site"><span className="scene-eyebrow">SUA PRÓXIMA POSSIBILIDADE</span><strong>Sua ideia.<br/><em>No digital.</em></strong><div className="scene-lines"><i/><i/></div><span className="scene-button">Começar <ArrowUpRight size={15}/></span></div> : index===1 ? <div className="scene-products">{[1,2,3].map(n=><div key={n}><ShoppingBag strokeWidth={1}/><span>Catálogo / 0{n}</span></div>)}</div> : <div className="scene-workflow"><span>Entrada</span><i/><Workflow/><i/><span>Ação</span></div>}
+   </motion.div>
+  </FloatingLayer>
  </motion.div>;
 }
+function SceneChapter({ index,progress,reduced,children }) {
+ const opacity=useTransform(progress,p => .65+.35*Math.exp(-(((p-beats[index])/.38)**2)));
+ return <motion.div style={reduced ? undefined : {opacity}}>{children}</motion.div>;
+}
 export default function PresentationMedia() {
- const target = useRef(null);
- const reduced = useReducedMotion();
- const {scrollYProgress} = useScroll({target,offset:['start start','end end']});
- const rotateX = useTransform(scrollYProgress,[0,.5,1],[9,24,12]);
- const rotateY = useTransform(scrollYProgress,[0,1],[-16,-26]);
- const rotateZ = useTransform(scrollYProgress,[0,1],[-4,2]);
- return <section ref={target} className={`ecosystem ${reduced ? 'ecosystem-static' : ''}`} aria-label="O ecossistema RM">
-  <div className="ecosystem-stage" aria-hidden="true"><div className="scene-index">RM — ECOSSISTEMA DIGITAL <span>01 → 04</span></div><motion.div className="ecosystem-perspective" style={reduced ? {} : {rotateX,rotateY,rotateZ}}>{[0,1,2].map(index=><SceneLayer key={index} index={index} progress={scrollYProgress} reduced={reduced}/>)}</motion.div><span className="scene-footnote">Uma ideia. Diferentes possibilidades.</span></div>
-  <div className="ecosystem-chapters">{chapters.map(([title,headline,description,Icon],index)=><div className="ecosystem-chapter" key={title}><motion.div initial={reduced ? false : {opacity:.25,y:30}} whileInView={{opacity:1,y:0}} viewport={{amount:.6}} transition={{duration:reduced ? 0 : .55}}><p className="section-kicker"><Icon size={17}/> 0{index+1} / {title}</p><h2>{headline}</h2><p>{description}</p>{index === 3 && <a data-rm-cta="" className="editorial-link" href="#solucoes"><span className="rm-cta-label">Explore as soluções </span><ArrowDown size={17}/></a>}</motion.div></div>)}</div>
+ const target=useRef(null), stage=useRef(null);
+ const reduced=useReducedMotion(), desktop=useFineMotion();
+ const visible=useSceneActive(stage);
+ const {progress}=useSceneScroll(target,true);
+ const {handoff}=useHeroTransition();
+ const transform=useTransform([progress,handoff],([p,h]) => `translate3d(0px, ${18*(1-h)}px, ${camera.depth(p)-48*(1-h)}px) rotateX(${camera.x(p)}deg) rotateY(${camera.y(p)}deg) rotateZ(${camera.z(p)}deg) scale(${.97+.03*h})`);
+ return <section ref={target} className={`ecosystem ${reduced?'ecosystem-static':''}`} data-motion-active={visible && !reduced} aria-label="O ecossistema RM">
+  <EcosystemArrivalAtmosphere progress={progress}/>
+  <DigitalAtmosphere variant="ecosystem" progress={progress} handoff={handoff} active={visible} desktop={desktop}/>
+  <div ref={stage} className="ecosystem-stage" aria-hidden="true"><div className="scene-index">RM — ECOSSISTEMA DIGITAL <span>01 → 04</span></div><motion.div className="ecosystem-perspective" style={reduced || !desktop ? undefined : {transform}}>{[0,1,2].map(index=><SceneLayer key={index} index={index} progress={progress} reduced={reduced} desktop={desktop} visible={visible}/>)}</motion.div><span className="scene-footnote">Uma ideia. Diferentes possibilidades.</span></div>
+  <div className="ecosystem-chapters">{chapters.map(([title,headline,description,Icon],index)=><div className="ecosystem-chapter" key={title}><SceneChapter index={index} progress={progress} reduced={reduced}><p className="section-kicker"><Icon size={17}/> 0{index+1} / {title}</p><h2>{headline}</h2><p>{description}</p>{index===3 && <a data-rm-cta="" className="editorial-link" href="#solucoes"><span className="rm-cta-label">Explore as soluções </span><ArrowDown size={17}/></a>}</SceneChapter></div>)}</div>
  </section>;
 }
-
-
 function HeroBrand({ x, y, width=48, light=false }) {
  return <svg x={x} y={y} width={width} height={width*.45} viewBox="220 110 1500 670" className={light?'rm-hero-brand-light':undefined}><image href="/rm-logo.png" width="1942" height="809"/></svg>;
 }
@@ -61,7 +106,7 @@ export function HeroMedia() {
   <clipPath id="rm-screen-clip"><path d="m929 207 348-83-58 384-354 11Z"/></clipPath>
  </defs>
  <g className="rm-hero-guides"><ellipse cx="1100" cy="525" rx="420" ry="235" fill="url(#rm-blue-halo)"/><path d="m779 57 697 510M662 459l660-286M805 459l700 240M1230 66l-7 235" stroke="#a7bbec" strokeWidth="1" opacity=".45"/><path d="m590 539 946-360v329L999 774H659Z" fill="#c7d5fb" opacity=".16"/><path d="m1449 479 60 70" stroke="white"/><text x="1400" y="79" transform="rotate(-5 1400 79)" fill="#aeb6c6" fontSize="11" letterSpacing="2"><tspan x="1400">IDEIAS</tspan><tspan x="1400" dy="21">SITES</tspan><tspan x="1400" dy="21">LOJAS VIRTUAIS</tspan><tspan x="1400" dy="21">AUTOMAÇÕES</tspan><tspan x="1400" dy="21">RESULTADOS</tspan></text></g>
- <g className="rm-hero-notebook" filter="url(#rm-soft-shadow)">
+ <HeroObject index={0}> <g className="rm-hero-notebook" filter="url(#rm-soft-shadow)">
   <path d="M920 189 1281 99Q1299 95 1297 113L1238 521Q1236 533 1225 536L844 545 906 209Q908 194 920 189Z" fill="#aab4c5"/>
   <path d="M918 192 1280 101Q1295 98 1293 114L1234 521Q1232 530 1222 532L843 541 906 209Q908 197 918 192Z" fill="url(#rm-bezel)" stroke="#78879d" strokeWidth=".85"/>
   <path d="m929 207 348-83-58 384-354 11Z" fill="url(#rm-screen)" stroke="#7e91af" strokeOpacity=".32" strokeWidth=".75"/><path d="m920 193 361-91q10-3 10 8" stroke="#dce9fb" strokeOpacity=".5" strokeWidth=".8"/><ellipse cx="1100" cy="158" rx="2.3" ry="1.7" fill="#415570"/><circle cx="1100" cy="158" r=".8" fill="#101b2b"/>
@@ -78,6 +123,7 @@ export function HeroMedia() {
   {Array.from({length:5},(_,row)=>Array.from({length:14},(_,col)=>{const x=861-row*23+col*(23-row*.55),y=538+row*7;return <path key={row+'-'+col} d={`M${x} ${y}l${21-row*.55} -.4 -19 5.1 -${21-row*.55} .4Z`} fill="url(#rm-keycap)" stroke="#8c9aaf" strokeWidth=".45"/>;}))}
   <path d="m820 586 110 6-70 26-107-18Z" fill="url(#rm-metal)" stroke="#8493a9"/><path d="m615 599 218 36q18 4 37-2l342-103" stroke="#eff3f9"/><path d="m851 532 373-8" stroke="#070c14" strokeWidth="5"/>
  </g>
+ </HeroObject><HeroObject index={1}>
  <g className="rm-hero-phone-placement">
  <g className="rm-hero-phone" transform="translate(703 250) rotate(-19 75 150)" filter="url(#rm-soft-shadow)">
   <rect x="-8" y="3" width="156" height="316" rx="24" fill="url(#rm-phone-rail)" stroke="#d4e4fb" strokeWidth="2"/><path d="M-9 54v32m0 12v37" stroke="#9eb6e1" strokeWidth="4"/>
@@ -91,36 +137,23 @@ export function HeroMedia() {
   <rect x="24" y="254" width="92" height="27" rx="5" fill="url(#rm-electric)"/><text x="70" y="272" textAnchor="middle" fontSize="10" fontWeight="600" fill="white">Comprar</text><rect x="52" y="300" width="43" height="3" rx="2" fill="#bdc6d5"/>
  </g>
  </g>
+ </HeroObject><HeroObject index={2}>
  <g className="rm-hero-top-card-placement">
  <g className="rm-hero-top-card" transform="translate(837 73) rotate(-4)" filter="url(#rm-card-shadow)"><rect x="2" y="4" width="240" height="73" rx="12" fill="#b9c9fa"/><rect width="240" height="73" rx="12" fill="url(#rm-card)" stroke="white" strokeWidth="1.6"/><rect x="11" y="12" width="41" height="44" rx="9" fill="url(#rm-electric)"/><g transform="translate(23 25)"><ShoppingBag size={18} color="white" strokeWidth={1.4}/></g><text x="67" y="29" fill="#111722" fontSize="14">Lojas virtuais</text><text x="67" y="49" fill="#111722" fontSize="14">para o seu negócio</text><path d="m205 43 12-12m-10 0h10v10" stroke="#0750ff" strokeWidth="1.5"/></g>
  </g>
+ </HeroObject><HeroObject index={3}>
  <g className="rm-hero-automation-placement">
  <g className="rm-hero-automation" transform="translate(1262 194) rotate(10)" filter="url(#rm-card-shadow)"><rect x="3" y="5" width="238" height="251" rx="15" fill="#b8c9fc"/><rect width="238" height="251" rx="15" fill="url(#rm-card)" stroke="white" strokeWidth="1.6"/><rect x="24" y="21" width="29" height="31" rx="7" fill="url(#rm-electric)"/><g transform="translate(31 28)"><Zap size={15} color="white"/></g><text x="69" y="42" fill="#171c28" fontSize="12" fontWeight="600">Automações</text><path d="M43 83v126" stroke="#89aaff"/>{[['Receber informações',Globe],['Mensagem automática',MessageSquare],['Organizar contatos',Contact],['Conectar processos',Workflow]].map(([label,Icon],i)=><g key={label} transform={`translate(0 ${78+i*42})`}><circle cx="43" cy="7" r="3.5" fill="#3870ff"/><rect x="67" y="-5" width="154" height="30" rx="5" fill="#e8eef9" fillOpacity=".72" stroke="#fff" strokeOpacity=".8" strokeWidth=".65"/><g transform="translate(77 3)"><Icon size={14} color="#2b354b" strokeWidth={1.4}/></g><text x="101" y="13" fontSize="8.5" fill="#52617a">{label}</text></g>)}</g>
  </g>
+ </HeroObject><HeroObject index={4}>
  <g className="rm-hero-lower-card-placement">
  <g className="rm-hero-lower-card" transform="translate(1158 477) rotate(8)" filter="url(#rm-card-shadow)"><rect x="2" y="4" width="256" height="161" rx="15" fill="#b3c8ff"/><rect width="256" height="161" rx="15" fill="url(#rm-card)" stroke="white" strokeWidth="1.6"/><text x="24" y="31" fill="#141b29" fontSize="12" fontWeight="600">Processos conectados</text><rect x="181" y="17" width="53" height="23" rx="9" fill="#d7f0e8"/><text x="208" y="33" fill="#10ad84" textAnchor="middle" fontSize="12">RM</text>{[17,30,20,12,30,40,24,35,47,49,63,78,91].map((height,i)=><rect key={i} x={28+i*15} y={132-height*.78} width="6" height={height*.78} rx="2" fill="#0750ff" opacity={.25+i*.06}/>)}</g>
- </g>
- <g className="rm-hero-ground"><path d="M737 774 779 739 844 717 906 674 962 648 1013 660 1077 684 1132 713 1235 732 1288 740 1360 755 1428 774Z" fill="url(#rm-rock)" filter="url(#rm-rock-texture)"/><path d="m888 717 71-66 25 9-31 34 66-15 42 20-75-3-50 28Z" fill="#727f91" opacity=".19"/><ellipse cx="1090" cy="709" rx="88" ry="17" fill="url(#rm-blue-halo)"/><text x="1398" y="691" transform="rotate(-12 1398 691)" fill="#a6b0c1" fontSize="9" letterSpacing="2"><tspan x="1398">TECNOLOGIA</tspan><tspan x="1398" dy="15">QUE IMPULSIONA</tspan><tspan x="1398" dy="15">PESSOAS</tspan></text><path d="m1435 644q12 12 17 25" stroke="#98a5b9"/></g>
- </svg></div>;
+ </g></HeroObject>
+ <HeroScenery><g className="rm-hero-ground"><path d="M737 774 779 739 844 717 906 674 962 648 1013 660 1077 684 1132 713 1235 732 1288 740 1360 755 1428 774Z" fill="url(#rm-rock)" filter="url(#rm-rock-texture)"/><path d="m888 717 71-66 25 9-31 34 66-15 42 20-75-3-50 28Z" fill="#727f91" opacity=".19"/><ellipse cx="1090" cy="709" rx="88" ry="17" fill="url(#rm-blue-halo)"/><text x="1398" y="691" transform="rotate(-12 1398 691)" fill="#a6b0c1" fontSize="9" letterSpacing="2"><tspan x="1398">TECNOLOGIA</tspan><tspan x="1398" dy="15">QUE IMPULSIONA</tspan><tspan x="1398" dy="15">PESSOAS</tspan></text><path d="m1435 644q12 12 17 25" stroke="#98a5b9"/></g>
+ </HeroScenery></svg></div>;
 }
 
 export function HeroAtmosphere() {
- const target=useRef(null),reduced=useReducedMotion();
- const visible=useInView(target);
- const [desktop,setDesktop]=useState(false);
- const px=useMotionValue(0),py=useMotionValue(0);
- const x=useSpring(px,{stiffness:35,damping:22}),y=useSpring(py,{stiffness:35,damping:22});
- const {scrollYProgress}=useScroll({target,offset:['start end','end start']});
- const near=useTransform(scrollYProgress,[0,1],[-7,7]),far=useTransform(scrollYProgress,[0,1],[-3,3]);
- useEffect(()=>{const q=window.matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)');const update=()=>setDesktop(q.matches);update();q.addEventListener('change',update);return()=>q.removeEventListener('change',update);},[]);
- useEffect(()=>{const host=target.current?.parentElement;if(!host||reduced||!desktop||!visible){px.set(0);py.set(0);return;}const move=e=>{if(e.pointerType!=='mouse')return;const r=host.getBoundingClientRect();px.set((e.clientX-r.left)/r.width*6-3);py.set((e.clientY-r.top)/r.height*4-2);};const reset=()=>{px.set(0);py.set(0);};host.addEventListener('pointermove',move,{passive:true});host.addEventListener('pointerleave',reset);return()=>{host.removeEventListener('pointermove',move);host.removeEventListener('pointerleave',reset);};},[reduced,desktop,visible,px,py]);
- const moving=desktop&&!reduced&&visible;
- const routes=[[[723,426],[828,426],[898,346],[1060,346]],[[1113,253],[1198,253],[1283,320],[1367,320]],[[1350,463],[1350,516],[1250,551],[1195,551]]];
- return <div ref={target} className="rm-digital-atmosphere" aria-hidden="true">
- <motion.div className="rm-digital-illumination" style={moving?{y:far}:{}} animate={{opacity:moving?[.78,.92,.78]:.84}} transition={{duration:moving?22:0,repeat:moving?Infinity:0,ease:'easeInOut'}}/>
- <motion.div className="rm-digital-depth" style={moving?{x,y}:{}}><motion.svg viewBox="0 0 1536 774" preserveAspectRatio="xMidYMid slice" style={moving?{y:near}:{}}>
- <g className="rm-digital-grid" stroke="currentColor" strokeWidth=".6" fill="none"><path d="M515 714 882 427m-249 287 283-287m-136 287 170-287m-24 287 56-287m91 287-23-287m170 287-90-287m237 287-161-287M683 583h668M625 628h785M566 671h905"/><path d="m96 90 210 0 85 85-210 0Zm1258 340 95-52 0 158-95 52Z" fill="currentColor" fillOpacity=".12"/></g>
- {routes.map((points,i)=><g key={i}><polyline points={points.map(p=>p.join(',')).join(' ')} fill="none" stroke="currentColor" strokeOpacity=".23" strokeWidth=".8"/><motion.g animate={moving?{x:points.map(p=>p[0]),y:points.map(p=>p[1]),opacity:[0,.6,.6,0]}:{x:points[0][0],y:points[0][1],opacity:0}} transition={{duration:moving?23+i*4:0,delay:moving?i*3:0,repeat:moving?Infinity:0,ease:'linear'}}><circle r="5" fill="currentColor" opacity=".1"/><circle r="1.5" fill="currentColor"/></motion.g></g>)}
- <motion.g className="rm-digital-points" fill="currentColor" animate={moving?{x:[0,4,0],y:[0,-6,0],opacity:[.2,.45,.2]}:{opacity:.24}} transition={{duration:moving?29:0,repeat:moving?Infinity:0,ease:'easeInOut'}}>{[[524,151],[821,91],[1475,430],[626,600],[1150,689],[1351,114]].map(([cx,cy])=><circle key={cx} cx={cx} cy={cy} r="1.3"/>)}</motion.g>
- </motion.svg></motion.div></div>;
+ const { progress,handoff,x,y,desktop,visible } = useHeroMotion();
+ return <DigitalAtmosphere progress={progress} handoff={handoff} cursorX={x} cursorY={y} desktop={desktop} active={visible}/>;
 }
