@@ -58,15 +58,15 @@ export default function ContatoPage() {
 						<ul className="mt-8 space-y-3 text-sm text-slate-300">
 							<li>
 								<span className="text-slate-500">WhatsApp: </span>
-								<a href={waLink(WA_MESSAGES.geral)} target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:underline">
+								<a data-rm-cta="" href={waLink(WA_MESSAGES.geral)} target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:underline"><span className="rm-cta-label">
 									{BRAND.whatsappDisplay}
-								</a>
+								</span></a>
 							</li>
 							<li>
 								<span className="text-slate-500">E-mail: </span>
-								<a href={`mailto:${BRAND.email}`} className="text-cyan-300 hover:underline">
+								<a data-rm-cta="" href={`mailto:${BRAND.email}`} className="text-cyan-300 hover:underline"><span className="rm-cta-label">
 									{BRAND.email}
-								</a>
+								</span></a>
 							</li>
 						</ul>
 					</div>
@@ -81,14 +81,14 @@ export default function ContatoPage() {
 								<p className="mt-3 text-sm text-slate-300">
 									Confira seus dados e clique abaixo. A solicitação só será enviada quando você confirmar o envio no WhatsApp.
 								</p>
-								<a href={preparedUrl} target="_blank" rel="noopener noreferrer" className="mt-5 block rounded-xl bg-emerald-500 px-5 py-3 text-center font-semibold text-slate-950">Abrir WhatsApp e enviar</a>
-<button
+								<a data-rm-cta="" href={preparedUrl} target="_blank" rel="noopener noreferrer" className="mt-5 block rounded-xl bg-emerald-500 px-5 py-3 text-center font-semibold text-slate-950"><span className="rm-cta-label">Abrir WhatsApp e enviar</span></a>
+<button data-rm-cta=""
 									type="button"
 									className="mt-6 text-sm font-semibold text-cyan-300"
 									onClick={() => setStatus('idle')}
-								>
+								><span className="rm-cta-label">
 									Editar mensagem
-								</button>
+								</span></button>
 							</div>
 						) : (
 							<form
@@ -178,13 +178,13 @@ export default function ContatoPage() {
 										{error}
 									</p>
 								) : null}
-								<button
+								<button data-rm-cta=""
 									type="submit"
 									disabled={status === 'loading'}
 									className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#2563EB] text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60 sm:w-auto sm:px-8"
-								>
+								><span className="rm-cta-label">
 									{status === 'loading' ? 'Enviando…' : 'Preparar mensagem no WhatsApp'}
-								</button>
+								</span></button>
 							</form>
 						)}
 					</div>

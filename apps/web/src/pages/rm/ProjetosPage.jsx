@@ -33,14 +33,14 @@ export default function ProjetosPage() {
 								</div>
 								<div className="flex flex-col justify-center bg-[#0F172A]/40 p-8">
 									<p className="text-sm leading-relaxed text-slate-300">{p.description}</p>
-									<a
+									<a data-rm-cta=""
 										href={waLink(WA_MESSAGES.projeto)}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="mt-8 inline-flex h-11 w-fit items-center rounded-full bg-[#2563EB] px-5 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
-									>
+									><span className="rm-cta-label">
 										Solicitar demonstração
-									</a>
+									</span></a>
 								</div>
 							</article>
 						))}

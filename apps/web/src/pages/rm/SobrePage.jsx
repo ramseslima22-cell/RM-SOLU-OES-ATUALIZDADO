@@ -33,20 +33,20 @@ export default function SobrePage() {
 						))}
 					</ul>
 					<div className="mt-10 flex flex-col gap-3 sm:flex-row">
-						<a
+						<a data-rm-cta=""
 							href={waLink(WA_MESSAGES.geral)}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="inline-flex h-11 items-center justify-center rounded-full bg-[#2563EB] px-5 text-sm font-semibold text-white"
-						>
+						><span className="rm-cta-label">
 							Falar com a RM
-						</a>
-						<Link
+						</span></a>
+						<Link data-rm-cta=""
 							to="/contato"
 							className="inline-flex h-11 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-semibold text-white"
-						>
+						><span className="rm-cta-label">
 							Formulário de contato
-						</Link>
+						</span></Link>
 					</div>
 				</div>
 			</section>

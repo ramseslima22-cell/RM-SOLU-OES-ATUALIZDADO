@@ -16,29 +16,29 @@ export default function SiteFooter() {
 					<ul className="mt-4 space-y-2">
 						{NAV_LINKS.filter((l) => l.href !== '/').map((l) => (
 							<li key={l.href}>
-								<Link
+								<Link data-rm-cta=""
 									to={l.href}
 									className="text-sm text-[#CBD5E1] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
-								>
+								><span className="rm-cta-label">
 									{l.label}
-								</Link>
+								</span></Link>
 							</li>
 						))}
 						<li>
-							<Link
+							<Link data-rm-cta=""
 								to="/politica-de-privacidade"
 								className="text-sm text-[#CBD5E1] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
-							>
+							><span className="rm-cta-label">
 								Política de Privacidade
-							</Link>
+							</span></Link>
 						</li>
 						<li>
-							<Link
+							<Link data-rm-cta=""
 								to="/termos-de-servico"
 								className="text-sm text-[#CBD5E1] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60"
-							>
+							><span className="rm-cta-label">
 								Termos de Serviço
-							</Link>
+							</span></Link>
 						</li>
 					</ul>
 				</div>
@@ -46,14 +46,14 @@ export default function SiteFooter() {
 					<p className="font-display text-sm font-semibold text-white">Contato</p>
 					<ul className="mt-4 space-y-2 text-sm text-slate-400">
 						<li>
-							<a href={waLink(WA_MESSAGES.geral)} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+							<a data-rm-cta="" href={waLink(WA_MESSAGES.geral)} target="_blank" rel="noopener noreferrer" className="hover:text-white"><span className="rm-cta-label">
 								WhatsApp: {BRAND.whatsappDisplay}
-							</a>
+							</span></a>
 						</li>
 						<li>
-							<a href={`mailto:${BRAND.email}`} className="hover:text-white">
+							<a data-rm-cta="" href={`mailto:${BRAND.email}`} className="hover:text-white"><span className="rm-cta-label">
 								E-mail: {BRAND.email}
-							</a>
+							</span></a>
 						</li>
 					</ul>
 				</div>

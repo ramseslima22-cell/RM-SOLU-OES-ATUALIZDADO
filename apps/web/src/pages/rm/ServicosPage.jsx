@@ -33,14 +33,14 @@ export default function ServicosPage() {
 									</span>
 									<h2 className="mt-5 font-display text-xl font-semibold text-white">{s.title}</h2>
 									<p className="mt-3 text-sm leading-relaxed text-slate-400">{s.description}</p>
-									<a
+									<a data-rm-cta=""
 										href={waLink(WA_MESSAGES.orcamento(s.title))}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-cyan-300"
-									>
+									><span className="rm-cta-label">
 										Solicitar orçamento
-										<ArrowRight className="h-4 w-4" />
+										</span><ArrowRight className="h-4 w-4" />
 									</a>
 								</article>
 							);
@@ -48,6 +48,6 @@ export default function ServicosPage() {
 					</div>
 				</div>
 			</section>
-		<section className="mx-auto max-w-6xl px-6 pb-16"><h2 className="font-display text-2xl font-bold">Apoio digital para o dia a dia</h2><p className="mt-3 text-slate-300">Documentos, planilhas e outras tarefas avulsas, com orçamento antes de começar.</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{AVULSO_SERVICES.map(s=><a key={s.id} href={waLink(WA_MESSAGES.avulso(s.title))} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/10 p-4 text-slate-200 hover:border-cyan-400/40">{s.title}</a>)}</div></section></SiteLayout>
+		<section className="mx-auto max-w-6xl px-6 pb-16"><h2 className="font-display text-2xl font-bold">Apoio digital para o dia a dia</h2><p className="mt-3 text-slate-300">Documentos, planilhas e outras tarefas avulsas, com orçamento antes de começar.</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{AVULSO_SERVICES.map(s=><a data-rm-cta="" key={s.id} href={waLink(WA_MESSAGES.avulso(s.title))} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/10 p-4 text-slate-200 hover:border-cyan-400/40"><span className="rm-cta-label">{s.title}</span></a>)}</div></section></SiteLayout>
 	);
 }

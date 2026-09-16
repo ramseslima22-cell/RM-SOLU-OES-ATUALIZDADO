@@ -63,7 +63,7 @@ export default function PlanosPage() {
 							{ n: 3, label: 'Resumo' },
 						].map((s) => (
 							<li key={s.n}>
-								<button
+								<button data-rm-cta=""
 									type="button"
 									onClick={() => setStep(s.n)}
 									className={cn(
@@ -78,11 +78,11 @@ export default function PlanosPage() {
 											'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold',
 											step === s.n ? 'bg-cyan-400 text-slate-900' : 'bg-white/10 text-slate-300',
 										)}
-									>
+									><span className="rm-cta-label">
 										{s.n}
-									</span>
+									</span></span><span className="rm-cta-label">
 									{s.label}
-								</button>
+								</span></button>
 							</li>
 						))}
 					</ol>
@@ -93,7 +93,7 @@ export default function PlanosPage() {
 							<h2 className="font-display text-2xl font-bold text-white">1. Escolha o plano de criação</h2>
 							<div className="mt-6 grid gap-6 lg:grid-cols-3">
 								{CREATION_PLANS.map((plan) => (
-									<button
+									<button data-rm-cta=""
 										key={plan.id}
 										type="button"
 										onClick={() => setCreationId(plan.id)}
@@ -105,36 +105,36 @@ export default function PlanosPage() {
 										)}
 									>
 										{plan.badge ? (
-											<span className="absolute -top-3 left-5 rounded-full bg-cyan-400 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-900">
+											<span className="absolute -top-3 left-5 rounded-full bg-cyan-400 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-900"><span className="rm-cta-label">
 												{plan.badge}
-											</span>
+											</span></span>
 										) : null}
-										<p className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300">
+										<p className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300"><span className="rm-cta-label">
 											Preço de lançamento
-										</p>
-										<h3 className="mt-2 font-display text-xl font-bold text-white">{plan.title}</h3>
-										<p className="mt-3 font-display text-3xl font-bold text-white">{plan.priceLabel}</p>
-										<p className="mt-1 text-sm text-slate-300">
+										</span></p>
+										<h3 className="mt-2 font-display text-xl font-bold text-white"><span className="rm-cta-label">{plan.title}</span></h3>
+										<p className="mt-3 font-display text-3xl font-bold text-white"><span className="rm-cta-label">{plan.priceLabel}</span></p>
+										<p className="mt-1 text-sm text-slate-300"><span className="rm-cta-label">
 											+ {plan.monthlyFrom}/mês de Suporte Essencial
-										</p>
-										<p className="mt-4 text-sm leading-relaxed text-slate-400">{plan.text}</p>
+										</span></p>
+										<p className="mt-4 text-sm leading-relaxed text-slate-400"><span className="rm-cta-label">{plan.text}</span></p>
 										<ul className="mt-5 space-y-2">
 											{plan.includes.map((item) => (
 												<li key={item} className="flex gap-2 text-sm text-slate-300">
-													<Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+													<Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" /><span className="rm-cta-label">
 													{item}
-												</li>
+												</span></li>
 											))}
 										</ul>
 										<div className="mt-5 border-t border-white/10 pt-4">
-											<p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+											<p className="text-xs font-semibold uppercase tracking-wide text-slate-500"><span className="rm-cta-label">
 												Limites
-											</p>
+											</span></p>
 											<ul className="mt-2 space-y-1.5">
 												{plan.limits.map((l) => (
-													<li key={l} className="text-xs leading-relaxed text-slate-500">
+													<li key={l} className="text-xs leading-relaxed text-slate-500"><span className="rm-cta-label">
 														· {l}
-													</li>
+													</span></li>
 												))}
 											</ul>
 										</div>
@@ -142,13 +142,13 @@ export default function PlanosPage() {
 								))}
 							</div>
 							<div className="mt-8 flex justify-end">
-								<button
+								<button data-rm-cta=""
 									type="button"
 									onClick={() => setStep(2)}
 									className="inline-flex h-12 items-center gap-2 rounded-full bg-[#2563EB] px-6 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
-								>
+								><span className="rm-cta-label">
 									Continuar para suporte
-									<ArrowRight className="h-4 w-4" />
+									</span><ArrowRight className="h-4 w-4" />
 								</button>
 							</div>
 						</div>
@@ -164,7 +164,7 @@ export default function PlanosPage() {
 							</p>
 							<div className="mt-6 grid gap-6 lg:grid-cols-3">
 								{SUPPORT_TIERS.map((tier) => (
-									<button
+									<button data-rm-cta=""
 										key={tier.id}
 										type="button"
 										onClick={() => setSupportId(tier.id)}
@@ -175,50 +175,50 @@ export default function PlanosPage() {
 												: 'border-white/10 bg-[#0F172A]/40 hover:border-white/20',
 										)}
 									>
-										<p className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300">
+										<p className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300"><span className="rm-cta-label">
 											{tier.priceNote}
-										</p>
-										<h3 className="mt-2 font-display text-xl font-bold text-white">{tier.title}</h3>
-										<p className="mt-2 font-display text-2xl font-bold text-white">{tier.priceLabel}</p>
+										</span></p>
+										<h3 className="mt-2 font-display text-xl font-bold text-white"><span className="rm-cta-label">{tier.title}</span></h3>
+										<p className="mt-2 font-display text-2xl font-bold text-white"><span className="rm-cta-label">{tier.priceLabel}</span></p>
 										{tier.required ? (
-											<span className="mt-2 inline-flex w-fit rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-200">
+											<span className="mt-2 inline-flex w-fit rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-200"><span className="rm-cta-label">
 												Mínimo obrigatório
-											</span>
+											</span></span>
 										) : null}
-										<p className="mt-4 text-sm text-slate-400">{tier.text}</p>
+										<p className="mt-4 text-sm text-slate-400"><span className="rm-cta-label">{tier.text}</span></p>
 										<ul className="mt-5 space-y-2">
 											{tier.includes.map((item) => (
 												<li key={item} className="flex gap-2 text-sm text-slate-300">
-													<Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+													<Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" /><span className="rm-cta-label">
 													{item}
-												</li>
+												</span></li>
 											))}
 										</ul>
 										<ul className="mt-4 space-y-1">
 											{tier.notes.map((n) => (
-												<li key={n} className="text-xs text-slate-500">
+												<li key={n} className="text-xs text-slate-500"><span className="rm-cta-label">
 													{n}
-												</li>
+												</span></li>
 											))}
 										</ul>
 									</button>
 								))}
 							</div>
 							<div className="mt-8 flex flex-wrap justify-between gap-3">
-								<button
+								<button data-rm-cta=""
 									type="button"
 									onClick={() => setStep(1)}
 									className="inline-flex h-12 items-center rounded-full border border-white/15 px-6 text-sm font-semibold text-white hover:bg-white/5"
-								>
+								><span className="rm-cta-label">
 									Voltar
-								</button>
-								<button
+								</span></button>
+								<button data-rm-cta=""
 									type="button"
 									onClick={() => setStep(3)}
 									className="inline-flex h-12 items-center gap-2 rounded-full bg-[#2563EB] px-6 text-sm font-semibold text-white hover:bg-[#1d4ed8]"
-								>
+								><span className="rm-cta-label">
 									Ver resumo
-									<ArrowRight className="h-4 w-4" />
+									</span><ArrowRight className="h-4 w-4" />
 								</button>
 							</div>
 						</div>
@@ -254,18 +254,18 @@ export default function PlanosPage() {
 								<div className="mt-8 space-y-3 border-t border-white/10 pt-6">
 									<p className="text-sm font-semibold text-white">Prosseguir para contratação</p>
 
-<a href={waResumo} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950">Conversar sobre este plano</a>
+<a data-rm-cta="" href={waResumo} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950"><span className="rm-cta-label">Conversar sobre este plano</span></a>
 <p className="text-sm text-slate-300">O resumo será aberto no WhatsApp. Antes de qualquer pagamento, confirmamos escopo, prazo, custos de terceiros e condições do suporte. Esta seleção não efetua cobrança.</p>
 </div>
 								</div>
 							<div className="mt-6">
-								<button
+								<button data-rm-cta=""
 									type="button"
 									onClick={() => setStep(2)}
 									className="inline-flex h-11 items-center rounded-full border border-white/15 px-5 text-sm font-semibold text-white hover:bg-white/5"
-								>
+								><span className="rm-cta-label">
 									Voltar ao suporte
-								</button>
+								</span></button>
 							</div>
 						</div>
 					) : null}
