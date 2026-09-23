@@ -82,7 +82,7 @@ function HeroBrand({ x, y, width=48, light=false }) {
 function HeroShoe({x=0,y=0}) {
  return <g transform={`translate(${x} ${y})`}><ellipse cx="53" cy="64" rx="40" ry="7" fill="#8e9bad" opacity=".22"/><path d="M10 53 26 44 40 21 47 4 60 8 66 27 74 38 91 46Q102 48 100 58L91 65Q50 77 8 63L5 57Z" fill="url(#rm-shoe)" stroke="#5f6e86"/><path d="M7 57Q48 72 100 55L94 65Q51 79 8 65Z" fill="#495973" stroke="#7c889d" strokeWidth=".6"/><path d="m37 27 22 7m-27 1 23 7m-28 0 22 7M47 7l8 15 12 6M18 51q33 18 67-3" stroke="#7b879b" strokeWidth="1.5"/><path d="m16 65 2 4m10-2 1 5m12-3v5m12-5v4m12-6-1 5m12-7-2 5m12-8-2 5" stroke="#162134"/></g>;
 }
-export function HeroMedia() {
+function LegacyHeroMedia() {
  return <div className="rm-hero-art" aria-hidden="true"><div className="rm-hero-canvas"><svg viewBox="0 0 1536 774" fill="none" className="rm-hero-backdrop">
  <defs>
   <linearGradient id="rm-bezel" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#39414e"/><stop offset=".18" stopColor="#101620"/><stop offset=".72" stopColor="#090e16"/><stop offset="1" stopColor="#303946"/></linearGradient>
@@ -156,4 +156,83 @@ export function HeroMedia() {
 export function HeroAtmosphere() {
  const { progress,handoff,x,y,desktop,visible } = useHeroMotion();
  return <DigitalAtmosphere progress={progress} handoff={handoff} cursorX={x} cursorY={y} desktop={desktop} active={visible}/>;
+}
+
+// Desktop artwork stays vector-based so the final camera move remains sharp.
+// This rectangle sits entirely inside the new screen, excluding its bezel.
+const desktopScreen = {x:1000,y:403,width:320,height:230};
+
+function DesktopHeroCard({index,x,y,width=220,angle,kind,lines}) {
+ return <HeroObject index={index} cinematic><g transform={`translate(${x} ${y}) rotate(${angle})`}>
+  <rect x="-2" y="-2" width={width+4} height="114" rx="17" fill="none" stroke="#2e75e4" strokeWidth="5" opacity=".12"/>
+  <rect width={width} height="110" rx="15" fill="url(#rm-cine-card)" stroke="#5077a7" strokeWidth="1"/>
+  <path d={`M14 109Q0 109 0 94V16Q0 0 16 0H${width-18}`} fill="none" stroke="#afd5ff" strokeWidth="1.7"/>
+  <path d={`M17 108H${width-16}Q${width-1} 108 ${width-1} 93V20`} fill="none" stroke="#165ce0" strokeOpacity=".55"/>
+  <g transform="translate(25 38)" fill="none" stroke="#d7eaff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+   {kind==='chart' ? <><path d="M2 30V19M12 30V10M22 30V0"/><path d="m0 9 10-5 9-8" stroke="#5bb0ff" strokeWidth="1.3"/></> : kind==='flow' ? <><rect x="8" y="1" width="15" height="12" rx="3"/><rect x="-2" y="25" width="13" height="12" rx="3"/><rect x="21" y="25" width="13" height="12" rx="3"/><path d="M15 13v7M4 25v-5h23v5"/></> : <path d="m19-2-19 22h12l-5 17 23-24H17Z" fill="#d7eaff" stroke="none"/>}
+  </g>
+  <text x="75" y="45" fill="#edf4ff" fontSize="18" fontWeight="550" letterSpacing="-.4"><tspan x="75">{lines[0]}</tspan><tspan x="75" dy="24">{lines[1]}</tspan></text>
+ </g></HeroObject>;
+}
+
+function DesktopHeroMedia() {
+ return <div className="rm-hero-art" aria-hidden="true"><div className="rm-hero-canvas">
+  <svg className="rm-hero-backdrop" viewBox="0 0 1536 774" fill="none"><defs>
+   <linearGradient id="rm-cine-metal" x1="0" y1="0" x2=".25" y2="1"><stop stopColor="#667383"/><stop offset=".25" stopColor="#323c4c"/><stop offset=".7" stopColor="#838fa2"/><stop offset=".9" stopColor="#c5cfda"/><stop offset="1" stopColor="#354150"/></linearGradient>
+   <linearGradient id="rm-cine-bezel" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#62758c"/><stop offset=".025" stopColor="#121b29"/><stop offset=".5" stopColor="#02060d"/><stop offset=".97" stopColor="#162234"/><stop offset="1" stopColor="#8da5bf"/></linearGradient>
+   <linearGradient id="rm-cine-screen" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#02080e"/><stop offset=".55" stopColor="#051120"/><stop offset="1" stopColor="#0d2c57"/></linearGradient>
+   <linearGradient id="rm-cine-browser"><stop stopColor="#153759"/><stop offset=".55" stopColor="#88bcea"/><stop offset="1" stopColor="#173f6b"/></linearGradient>
+   <linearGradient id="rm-cine-card" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#182a43" stopOpacity=".96"/><stop offset=".45" stopColor="#0c1625" stopOpacity=".96"/><stop offset="1" stopColor="#111b2b" stopOpacity=".94"/></linearGradient>
+   <linearGradient id="rm-cine-wave" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#268cff" stopOpacity=".42"/><stop offset="1" stopColor="#073768" stopOpacity="0"/></linearGradient>
+   <linearGradient id="rm-cine-glass" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#c7e6ff" stopOpacity=".12"/><stop offset=".45" stopColor="#a7d4ff" stopOpacity="0"/><stop offset="1" stopColor="#1a5fb0" stopOpacity=".06"/></linearGradient>
+   <linearGradient id="rm-cine-rock" x1="0" y1="0" x2=".3" y2="1"><stop stopColor="#1a2b3d"/><stop offset=".45" stopColor="#091422"/><stop offset="1" stopColor="#02070c"/></linearGradient>
+   <clipPath id="rm-cine-screen-clip"><path d="M796 240 1220 210 1188 544 764 574Z"/></clipPath>
+  </defs></svg>
+  <HeroScenery><g>
+   <path d="M0 725 124 670 214 692 360 597 425 643 547 573 622 610 734 517 827 574 908 526 1064 580 1157 487 1270 572 1390 493 1536 557V774H0Z" fill="url(#rm-cine-rock)"/>
+   <path d="m360 597 58 110 129-134-38 147 225-203-59 182 152-125 81-48-41 192 197-138-52 143 145-236 66 184 46-99 120-79-43 167 111-103" fill="none" stroke="#456181" strokeOpacity=".22" strokeWidth="2"/>
+   <path d="m12 767 210-65 126 30 200-74 106 53 156-63 132 76 163-93 111 61 155-100 165 58" fill="none" stroke="#076ee7" strokeOpacity=".35" strokeWidth="12"/>
+   <path d="m12 767 210-65 126 30 200-74 106 53 156-63 132 76 163-93 111 61 155-100 165 58" fill="none" stroke="#368dff" strokeOpacity=".7" strokeWidth="1.2"/>
+   {Array.from({length:30},(_,i)=>{const x=280+(i*137)%1250,y=630+(i*41)%140;return <path key={i} d={`m${x} ${y} 31-23 43 9-59 32Z`} fill={i%3===0?'#284461':'#122539'} opacity={.12+(i%4)*.04}/>;})}
+   <path d="M0 774V735L274 754 525 720 850 752 1100 703 1374 753 1536 728V774Z" fill="#02070d" opacity=".8"/>
+  </g></HeroScenery>
+    <HeroObject index={0} screen={desktopScreen} cinematic><g className="rm-cinematic-notebook" transform="translate(560 120) scale(.56)">
+   <defs><clipPath id="rm-laptop-screen-clip"><path d="M552 180 1434 68 1354 728 458 697Z"/></clipPath></defs>
+   <image href="/rm-laptop.png" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none"/>
+   <g clipPath="url(#rm-laptop-screen-clip)"><g transform="matrix(.882 -.112 -.134 .86 552 180)">
+    <rect width="1000" height="640" fill="#06101e"/><rect width="1000" height="13" fill="#163759"/>
+    <circle cx="9" cy="6" r="1.4" fill="#c2e5ff"/><circle cx="15" cy="6" r="1.4" fill="#80a6cc"/><circle cx="21" cy="6" r="1.4" fill="#7093b8"/>
+    <image href="/rm-logo.png" x="28" y="29" width="112" height="48" preserveAspectRatio="xMinYMid meet"/>
+    <g fill="#b9ccde" fontSize="16"><text x="650" y="51">In&#237;cio</text><text x="735" y="51">Solu&#231;&#245;es</text><text x="845" y="51">Projetos</text><text x="950" y="51">Menu</text></g>
+    <text x="34" y="205" fill="#f5f8ff" fontSize="82" fontWeight="650" letterSpacing="-2"><tspan x="34">Resultados</tspan><tspan x="34" dy="94">Reais.</tspan></text>
+    <text x="34" y="365" fill="#a8bbcd" fontSize="27"><tspan x="34">Estrat&#233;gia, design e tecnologia</tspan><tspan x="34" dy="40">para o seu crescimento.</tspan></text>
+    <path d="M0 555Q100 485 210 520T415 468 590 505 760 390 900 435 1000 448V640H0Z" fill="#0754c8" fillOpacity=".4"/>
+    <path d="M0 555Q100 485 210 520T415 468 590 505 760 390 900 435 1000 448" fill="none" stroke="#2586f0" strokeWidth="5"/>
+    <path d="M0 590Q170 540 285 560T520 525 760 490 1000 515" fill="none" stroke="#174c80" strokeWidth="3"/>
+    <g fill="#5bb0ff">{[38,52,31,64,47,78,59,88,72,96].map((height,index)=><rect key={index} x={45+index*92} y={570-height*1.35} width="24" height={height*1.35} rx="5" opacity={.34+index*.045}/>)}</g>
+    <path d="M0 0H1000L0 300Z" fill="#c7e6ff" fillOpacity=".06"/>
+   </g></g>
+   </g></HeroObject>
+    <HeroObject index={1} cinematic><g transform="translate(1335 340) rotate(3) scale(.88)">
+   <rect x="-3" y="-2" width="179" height="348" rx="25" fill="url(#rm-cine-metal)" stroke="#a3b4c6" strokeWidth="1.2"/>
+   <rect width="173" height="344" rx="23" fill="#03070d" stroke="#182b40" strokeWidth="2"/>
+   <rect x="6" y="6" width="161" height="332" rx="19" fill="url(#rm-cine-screen)" stroke="#486783" strokeWidth=".6"/>
+   <rect x="60" y="9" width="55" height="13" rx="7" fill="#020409"/><circle cx="110" cy="15" r="2" fill="#182739"/>
+   <path d="M-4 69v31m180-21v45" stroke="#667589" strokeWidth="2"/>
+   <HeroBrand x={21} y={43} width={43} light/>
+   <text x="19" y="145" fill="#f4f8ff" fontSize="23" fontWeight="600" letterSpacing="-.7"><tspan x="19">Seu negócio</tspan><tspan x="19" dy="27">em <tspan fill="#4ba6ff">qualquer</tspan></tspan><tspan x="19" dy="27">lugar.</tspan></text>
+   <path d="M9 291Q57 235 100 264T165 244V327Q165 337 151 337H23Q9 337 9 325Z" fill="url(#rm-cine-wave)"/>
+   <path d="M9 291Q57 235 100 264T165 244" fill="none" stroke="#287ee2" strokeWidth="1"/>
+   <path d="M16 7H149Q166 7 166 24V54L7 278V25Q7 9 16 7Z" fill="url(#rm-cine-glass)"/>
+   <rect x="63" y="327" width="47" height="3" rx="2" fill="#8197ab"/>
+  </g></HeroObject>
+    <DesktopHeroCard index={2} x={760} y={120} angle={11} kind="bolt" lines={['Sites de Alta','Performance']}/>
+    <DesktopHeroCard index={3} x={1180} y={155} width={205} angle={-7} kind="flow" lines={['Automação','de Processos']}/>
+    <DesktopHeroCard index={4} x={750} y={656} angle={8} kind="chart" lines={['Estratégia','Digital']}/>
+ </div></div>;
+}
+
+export function HeroMedia() {
+ const desktop=useFineMotion('(min-width:901px)');
+ return desktop ? <DesktopHeroMedia/> : <LegacyHeroMedia/>;
 }
