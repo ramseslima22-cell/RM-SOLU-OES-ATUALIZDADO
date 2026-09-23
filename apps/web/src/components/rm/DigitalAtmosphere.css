@@ -8,19 +8,22 @@
 .rm-ambient-light-plane,.rm-ambient-network-plane { position:absolute; inset:-24px; }
 .rm-ambient-pointer-plane { position:absolute; inset:0; }
 .rm-ambient-signals { position:absolute; inset:0; width:100%; height:100%; contain:paint; }
+.rm-ambient[data-running="true"] .rm-ambient-network-plane { will-change:transform; }
+.rm-ambient-signal-space { position:absolute; width:1536px; height:774px; transform-origin:0 0; }
+.rm-ambient-signal-segment { position:absolute; height:1.8px; overflow:hidden; transform-origin:0 .9px; }
 .rm-ambient .rm-ambient-glow { position:absolute; inset:0; background:radial-gradient(ellipse 52% 65% at 73% 48%,#0649ff40,transparent 78%),radial-gradient(ellipse 29% 37% at 90% 28%,#438fff18,transparent 80%); animation:rm-ambient-breathe 24s ease-in-out infinite!important; }
 .rm-ambient-ecosystem .rm-ambient .rm-ambient-glow { background:radial-gradient(ellipse 55% 63% at 73% 47%,#0649ff38,transparent 80%),radial-gradient(ellipse 45% 65% at 40% 90%,#1353ab14,transparent 80%); }
 .rm-ambient-network { display:block; width:100%; height:100%; }
 .rm-ambient-grid { stroke:#83a9ed; stroke-width:.7; opacity:.09; mask-image:linear-gradient(transparent 43%,#000 75%,transparent); }
 .rm-ambient-routes { stroke:#578eff; stroke-width:.8; opacity:.24; }
-.rm-ambient .rm-ambient-pulse { stroke:#c2e0ff; stroke-width:1.8; stroke-linecap:round; stroke-dasharray:.65 99.35; opacity:.7; animation:rm-ambient-transmit var(--pulse-duration) linear var(--pulse-delay) infinite!important; }
+.rm-ambient .rm-ambient-pulse { position:absolute; left:0; top:0; height:1.8px; border-radius:.9px; background:#c2e0ff; opacity:.7; animation:rm-ambient-transmit var(--pulse-duration) linear var(--pulse-delay) infinite!important; }
 .rm-ambient-nodes { fill:#b9d7ff; opacity:.55; }
 .rm-ambient .rm-ambient-geometry { stroke:#6997df; stroke-width:.8; fill:#3478ff; fill-opacity:.018; opacity:.18; }
 .rm-ambient-data { stroke:#8bb5ee; stroke-width:1; opacity:.25; }
 .rm-ambient-data text { stroke:none; fill:#a2bfea; font:8px monospace; letter-spacing:2px; }
 .rm-ambient[data-running="false"] .rm-ambient-glow,.rm-ambient[data-running="false"] .rm-ambient-pulse,.rm-ambient[data-running="false"] .rm-ambient-geometry { animation-play-state:paused!important; }
 @keyframes rm-ambient-breathe { 0%,100% { opacity:.72; } 50% { opacity:1; } }
-@keyframes rm-ambient-transmit { to { stroke-dashoffset:-100; } }
+@keyframes rm-ambient-transmit { from { transform:translate3d(var(--pulse-from),0,0); } to { transform:translate3d(var(--pulse-to),0,0); } }
 @media(max-width:900px) {
  .rm-ambient-network-plane,.rm-ambient-light-plane { transform:none!important; }
  .rm-ambient-grid,.rm-ambient-geometry,.rm-ambient-data,.rm-ambient-pulse-2,.rm-ambient-pulse-3 { display:none; }

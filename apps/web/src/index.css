@@ -471,20 +471,26 @@ a:focus-visible,button:focus-visible { outline-color:#354ee8; }
 /* Motion wrappers own animation; calibrated artwork keeps its static transforms. */
 .rm-hero-static:before,.rm-hero-static:after { content:none; }
 .rm-hero-scene { position:relative; width:100%; aspect-ratio:1536/774; }
-.rm-hero-plane { transform-box:view-box; transform-origin:var(--rm-object-origin, 0px 0px)!important; }
-.rm-hero-object-0 { --rm-object-origin:983px 371px; }
-.rm-hero-object-1 { --rm-object-origin:786px 426px; }
-.rm-hero-object-2 { --rm-object-origin:976px 112px; }
-.rm-hero-object-3 { --rm-object-origin:1359px 345px; }
-.rm-hero-object-4 { --rm-object-origin:1278px 596px; }
+.rm-hero-object,.rm-hero-plane,.rm-hero-scenery,.rm-hero-backdrop { position:absolute; inset:0; }
+.rm-hero-plane { transform-origin:var(--rm-object-origin, 0px 0px); }
+/* Percentage origins/translations preserve the 1536 × 774 artwork coordinates. */
+.rm-hero-object-0 { --rm-object-origin:63.9973958333% 47.9328165375%; }
+.rm-hero-object-1 { --rm-object-origin:51.171875% 55.0387596899%; }
+.rm-hero-object-2 { --rm-object-origin:63.5416666667% 14.4702842377%; }
+.rm-hero-object-3 { --rm-object-origin:88.4765625% 44.5736434109%; }
+.rm-hero-object-4 { --rm-object-origin:83.203125% 77.0025839793%; }
+.rm-hero-scenery { transform-origin:73.07487% 91.6020671835%; }
+.rm-hero-scenery[data-motion-active="true"] { will-change:transform,opacity; }
+.rm-hero-object[data-motion-active="true"] .rm-hero-scroll,
+.rm-hero-object[data-motion-active="true"] .rm-hero-float { will-change:transform; }
 .rm-ecosystem-plane,.rm-ecosystem-float { position:absolute; inset:0; transform-style:preserve-3d; }
 .ecosystem[data-motion-active="true"] .rm-ecosystem-float { will-change:transform; }
 @media(max-width:900px) {
- .rm-hero-object-0 { --rm-object-origin:952px 371px; }
- .rm-hero-object-1 { --rm-object-origin:777px 410px; }
- .rm-hero-object-2 { --rm-object-origin:960px 103px; }
- .rm-hero-object-3 { --rm-object-origin:1358px 341px; }
- .rm-hero-object-4 { --rm-object-origin:1274px 577px; }
+ .rm-hero-object-0 { --rm-object-origin:61.9791666667% 47.9328165375%; }
+ .rm-hero-object-1 { --rm-object-origin:50.5859375% 52.9715762274%; }
+ .rm-hero-object-2 { --rm-object-origin:62.5% 13.3074935401%; }
+ .rm-hero-object-3 { --rm-object-origin:88.4114583333% 44.0568475452%; }
+ .rm-hero-object-4 { --rm-object-origin:82.9427083333% 74.5478036176%; }
 }
 @media(prefers-reduced-motion:reduce) {
  .rm-hero-plane,.rm-ecosystem-float { transform:none!important; will-change:auto!important; }
@@ -502,7 +508,8 @@ a:focus-visible,button:focus-visible { outline-color:#354ee8; }
 .rm-hero-index { position:absolute; top:40%; left:2.55%; font-size:.95cqw; color:#b1b7c4; }
 .rm-hero-index:after { content:''; display:block; width:1px; height:6.5cqw; background:linear-gradient(#bbc4d3,transparent); margin:10px auto 0; }
 .rm-hero-art { position:absolute; inset:0; pointer-events:none; }
-.rm-hero-canvas { display:block; width:100%; height:100%; overflow:visible; font-family:Inter,Arial,sans-serif; }
+.rm-hero-canvas { position:relative; display:block; width:100%; height:100%; overflow:visible; font-family:Inter,Arial,sans-serif; }
+.rm-hero-backdrop,.rm-hero-float>svg,.rm-hero-scenery>svg { display:block; width:100%; height:100%; overflow:visible; }
 .rm-hero-brand-light { filter:invert(1) grayscale(1) brightness(3); }
 .rm-hero-footer { position:relative; display:flex; align-items:center; gap:2cqw; min-height:9.4cqw; margin:0 2.8%; padding:1.2cqw 2.3cqw 1.8cqw; border-top:1px solid #ffffff70; }
 .rm-hero-capabilities { display:flex; gap:1.8cqw; }

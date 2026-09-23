@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { animateMini, motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, useInView, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { useHeroTransition } from './HeroTransition';
 
 const HeroContext = createContext(null);
@@ -33,8 +33,8 @@ export function useFineMotion() {
  return enabled;
 }
 
-export function useSceneActive(target) {
- const visible = useInView(target);
+export function useSceneActive(target, margin = '0px') {
+ const visible = useInView(target,{margin});
  const [awake,setAwake] = useState(() => typeof document === 'undefined' || !document.hidden);
  useEffect(() => {
   const update = () => setAwake(!document.hidden);
@@ -47,7 +47,7 @@ export function useSceneActive(target) {
 // Read geometry only on resize/content resize, never during scrolling. Using the
 // native document scroll source avoids Framer's static-root target-offset warning.
 export function useSceneScroll(target,sticky=false) {
- const {scrollY} = useScroll();
+ const {scrollY} = useHeroTransition();
  const start = useMotionValue(0), distance = useMotionValue(1);
  useLayoutEffect(() => {
   const measure = () => {
@@ -65,49 +65,51 @@ export function useSceneScroll(target,sticky=false) {
  return {progress,scrollY};
 }
 
-export function FloatingLayer({ children,index,desktop,reduced,visible,svg=false,speed }) {
+export function FloatingLayer({ children,index,desktop,reduced,visible,artwork=false,speed }) {
  const target = useRef(null), playback = useRef(null);
- const Tag = svg ? 'g' : 'div';
  useEffect(() => {
   if (reduced) return;
   const [duration,dx,dy,angle,phase] = floats[index];
-  const amount = (desktop ? 1 : .25)*(svg ? [2.2,1.8,1.9,1.7,1.85][index] : 1);
+  const amount = (desktop ? 1 : .25)*(artwork ? [2.2,1.8,1.9,1.7,1.85][index] : 1);
   // Sample once, not per frame. Position AND velocity join at the loop boundary.
   // X/Y use different harmonics, avoiding a straight-line ping-pong.
   const frames = Array.from({length:65},(_,i) => {
-   if (i===0 || i===64) return svg ? 'translate(0px, 0px) rotate(0deg)' : 'translate3d(0px, 0px, 0px) rotate(0deg)';
+   if (i===0 || i===64) return 'translate3d(0px, 0px, 0px) rotate(0deg)';
    const t = i/64*Math.PI*2;
    const x = dx*amount*(Math.sin(t+phase)-Math.sin(phase));
    const y = dy*amount*(.8*(Math.cos(t+phase)-Math.cos(phase))+.2*(Math.sin(2*t+phase)-Math.sin(phase)));
    const r = angle*amount*(Math.sin(t+phase+.6)-Math.sin(phase+.6));
-   return svg ? `translate(${x}px, ${y}px) rotate(${r}deg)` : `translate3d(${x}px, ${y}px, 0px) rotate(${r}deg)`;
+   return artwork ? `translate3d(${x/15.36}%, ${y/7.74}%, 0px) rotate(${r}deg)` : `translate3d(${x}px, ${y}px, 0px) rotate(${r}deg)`;
   });
-  // Framer's native animation path keeps autonomous floating off the JS frame loop.
-  const animation = animateMini(target.current,{transform:frames},{duration,repeat:Infinity,ease:'linear'});
+  // Native transform keyframes keep autonomous floating off the JS frame loop.
+  const animation = target.current.animate(frames.map(transform => ({transform})),{duration:duration*1000,iterations:Infinity,easing:'linear'});
   animation.pause();
   playback.current = animation;
   return () => { animation.cancel(); playback.current = null; };
- },[index,desktop,reduced,svg]);
+ },[index,desktop,reduced,artwork]);
  useEffect(() => {
   if (visible && !reduced) playback.current?.play();
   else playback.current?.pause();
  },[visible,reduced,desktop,index]);
  useEffect(() => {
-  if (!speed) return;
-  const update = value => { if (playback.current) playback.current.speed=value; };
+  if (!speed || !visible || reduced) return;
+  // Preserve phase while changing speed asynchronously on the animation timeline.
+  const update = value => playback.current?.updatePlaybackRate(value);
   update(speed.get());
   return speed.on('change',update);
- },[speed,index,desktop,reduced,svg]);
- return <Tag ref={target} className={svg ? 'rm-hero-plane rm-hero-float' : 'rm-ecosystem-float'}>{children}</Tag>;
+ },[speed,index,desktop,reduced,artwork,visible]);
+ return <div ref={target} className={artwork ? 'rm-hero-plane rm-hero-float' : 'rm-ecosystem-float'}>{children}</div>;
 }
 
 export function HeroScene({ children }) {
  const target = useRef(null), bounds = useRef(null);
  const reduced = useReducedMotion(), desktop = useFineMotion();
- const visible = useSceneActive(target);
+ // Artwork is retained below the scene during handoff. Keep it alive until that
+ // overflow has left the viewport, rather than freezing at the section boundary.
+ const visible = useSceneActive(target, '50% 0px 0px 0px');
  const px = useMotionValue(0), py = useMotionValue(0);
- const x = useSpring(px,{stiffness:70,damping:20,mass:.8,restDelta:.001,restSpeed:.001});
- const y = useSpring(py,{stiffness:70,damping:20,mass:.8,restDelta:.001,restSpeed:.001});
+ const x = useSpring(px,{stiffness:70,damping:20,mass:.8,restDelta:.005,restSpeed:.005});
+ const y = useSpring(py,{stiffness:70,damping:20,mass:.8,restDelta:.005,restSpeed:.005});
  const {progress:scrollYProgress,scrollY,opening,handoff,carry,floatingSpeed} = useHeroTransition();
  const reset = () => { px.set(0); py.set(0); };
  useEffect(() => {
@@ -152,31 +154,34 @@ export function HeroFooter({children}) {
 }
 
 export function HeroScenery({children}) {
- const {progress,reduced,desktop}=useHeroMotion();
+ const {progress,reduced,desktop,visible}=useHeroMotion();
  const opacity=useTransform(progress,p => desktop ? 1-settle(p/.34) : 1);
- const y=useTransform(progress,p => desktop ? -35*settle(p/.34) : 0);
- const scale=useTransform(progress,p => desktop ? 1-.12*settle(p/.34) : 1);
- return <motion.g style={reduced ? undefined : {opacity,y,scale}}>{children}</motion.g>;
+ const transform=useTransform(progress,p => `translate3d(0, ${desktop ? -35*settle(p/.34)/7.74 : 0}%, 0) scale(${desktop ? 1-.12*settle(p/.34) : 1})`);
+ return <motion.div className="rm-hero-scenery" data-motion-active={visible && !reduced} style={reduced ? undefined : {opacity,transform}}><svg viewBox="0 0 1536 774" fill="none">{children}</svg></motion.div>;
 }
 
 export function HeroObject({ children,index }) {
  const {x,y,opening,handoff,carry,floatingSpeed,reduced,desktop,visible} = useHeroMotion();
  const config = objects[index];
  const amount = reduced ? 0 : desktop ? 1 : .25;
- const sx = useTransform([opening,handoff],([p,h]) => desktop ? (p*config.x+h*config.exitX)*amount : 0);
- const sy = useTransform([opening,handoff,carry],([p,h,retention]) => (p*config.y+(desktop ? retention+h*config.exitY : 0))*amount);
- const scale = useTransform([opening,handoff],([p,h]) => 1+((config.scale-1)*p+(desktop ? (config.exitScale-config.scale)*h : 0))*amount);
- const rotate = useTransform([opening,handoff],([p,h]) => desktop ? (config.rotate*p+(config.exitRotate-config.rotate)*h)*amount : 0);
- const px = useTransform([x,handoff],([value,h]) => desktop && !reduced ? value*config.depth*(1-h*.85) : 0);
- const py = useTransform([y,handoff],([value,h]) => desktop && !reduced ? value*config.depth*.7*(1-h*.85) : 0);
- return <g className={`rm-hero-object rm-hero-object-${index}`} data-motion-active={visible && !reduced}>
-  <motion.g className="rm-hero-plane rm-hero-scroll" style={reduced ? undefined : {x:sx,y:sy,scale,rotate}}>
-   <motion.g className="rm-hero-plane rm-hero-pointer" style={desktop && !reduced ? {x:px,y:py} : undefined}>
-    <motion.g className="rm-hero-plane rm-hero-intro" initial={reduced ? false : {opacity:0,x:index===1 ? -16 : 0,y:index===0 ? 14 : 8,scale:index===0 ? .982 : .99}}
-     animate={{opacity:1,x:0,y:0,scale:1}} transition={{duration:desktop ? 1.2 : .65,delay:.12+index*.13,ease:entrance}}>
-     <FloatingLayer svg index={index} desktop={desktop} reduced={reduced} visible={visible} speed={floatingSpeed}>{children}</FloatingLayer>
-    </motion.g>
-   </motion.g>
-  </motion.g>
- </g>;
+ const transform = useTransform([opening,handoff,carry],([p,h,retention]) => {
+  const sx=desktop ? (p*config.x+h*config.exitX)*amount : 0;
+  const sy=(p*config.y+(desktop ? retention+h*config.exitY : 0))*amount;
+  const scale=1+((config.scale-1)*p+(desktop ? (config.exitScale-config.scale)*h : 0))*amount;
+  const rotate=desktop ? (config.rotate*p+(config.exitRotate-config.rotate)*h)*amount : 0;
+  return `translate3d(${sx/15.36}%, ${sy/7.74}%, 0) scale(${scale}) rotate(${rotate}deg)`;
+ });
+ const pointer=useTransform([x,y,handoff],([px,py,h]) => `translate3d(${px*config.depth*(1-h*.85)/15.36}%, ${py*config.depth*.7*(1-h*.85)/7.74}%, 0)`);
+ // HTML planes can be composited independently. Moving <g> elements inside one
+ // SVG invalidated its filtered artwork on every float/pointer/scroll frame.
+ return <div className={`rm-hero-object rm-hero-object-${index}`} data-motion-active={visible && !reduced}>
+  <motion.div className="rm-hero-plane rm-hero-scroll" style={reduced ? undefined : {transform}}>
+   <motion.div className="rm-hero-plane rm-hero-pointer" style={desktop && !reduced ? {transform:pointer} : undefined}>
+    <motion.div className="rm-hero-plane rm-hero-intro" initial={reduced ? false : {opacity:0,transform:`translate3d(${(index===1 ? -16 : 0)/15.36}%, ${(index===0 ? 14 : 8)/7.74}%, 0) scale(${index===0 ? .982 : .99})`}}
+     animate={{opacity:1,transform:'translate3d(0%, 0%, 0) scale(1)'}} transition={{duration:desktop ? 1.2 : .65,delay:.12+index*.13,ease:entrance}}>
+     <FloatingLayer artwork index={index} desktop={desktop} reduced={reduced} visible={visible} speed={floatingSpeed}><svg viewBox="0 0 1536 774" fill="none">{children}</svg></FloatingLayer>
+    </motion.div>
+   </motion.div>
+  </motion.div>
+ </div>;
 }

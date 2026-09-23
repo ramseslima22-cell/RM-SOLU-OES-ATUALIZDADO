@@ -83,7 +83,7 @@ function HeroShoe({x=0,y=0}) {
  return <g transform={`translate(${x} ${y})`}><ellipse cx="53" cy="64" rx="40" ry="7" fill="#8e9bad" opacity=".22"/><path d="M10 53 26 44 40 21 47 4 60 8 66 27 74 38 91 46Q102 48 100 58L91 65Q50 77 8 63L5 57Z" fill="url(#rm-shoe)" stroke="#5f6e86"/><path d="M7 57Q48 72 100 55L94 65Q51 79 8 65Z" fill="#495973" stroke="#7c889d" strokeWidth=".6"/><path d="m37 27 22 7m-27 1 23 7m-28 0 22 7M47 7l8 15 12 6M18 51q33 18 67-3" stroke="#7b879b" strokeWidth="1.5"/><path d="m16 65 2 4m10-2 1 5m12-3v5m12-5v4m12-6-1 5m12-7-2 5m12-8-2 5" stroke="#162134"/></g>;
 }
 export function HeroMedia() {
- return <div className="rm-hero-art" aria-hidden="true"><svg viewBox="0 0 1536 774" fill="none" className="rm-hero-canvas">
+ return <div className="rm-hero-art" aria-hidden="true"><div className="rm-hero-canvas"><svg viewBox="0 0 1536 774" fill="none" className="rm-hero-backdrop">
  <defs>
   <linearGradient id="rm-bezel" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#39414e"/><stop offset=".18" stopColor="#101620"/><stop offset=".72" stopColor="#090e16"/><stop offset="1" stopColor="#303946"/></linearGradient>
   <linearGradient id="rm-keycap" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#4b5667"/><stop offset=".28" stopColor="#293342"/><stop offset="1" stopColor="#101824"/></linearGradient>
@@ -106,7 +106,7 @@ export function HeroMedia() {
   <clipPath id="rm-screen-clip"><path d="m929 207 348-83-58 384-354 11Z"/></clipPath>
  </defs>
  <g className="rm-hero-guides"><ellipse cx="1100" cy="525" rx="420" ry="235" fill="url(#rm-blue-halo)"/><path d="m779 57 697 510M662 459l660-286M805 459l700 240M1230 66l-7 235" stroke="#a7bbec" strokeWidth="1" opacity=".45"/><path d="m590 539 946-360v329L999 774H659Z" fill="#c7d5fb" opacity=".16"/><path d="m1449 479 60 70" stroke="white"/><text x="1400" y="79" transform="rotate(-5 1400 79)" fill="#aeb6c6" fontSize="11" letterSpacing="2"><tspan x="1400">IDEIAS</tspan><tspan x="1400" dy="21">SITES</tspan><tspan x="1400" dy="21">LOJAS VIRTUAIS</tspan><tspan x="1400" dy="21">AUTOMAÇÕES</tspan><tspan x="1400" dy="21">RESULTADOS</tspan></text></g>
- <HeroObject index={0}> <g className="rm-hero-notebook" filter="url(#rm-soft-shadow)">
+ </svg><HeroObject index={0}> <g className="rm-hero-notebook" filter="url(#rm-soft-shadow)">
   <path d="M920 189 1281 99Q1299 95 1297 113L1238 521Q1236 533 1225 536L844 545 906 209Q908 194 920 189Z" fill="#aab4c5"/>
   <path d="M918 192 1280 101Q1295 98 1293 114L1234 521Q1232 530 1222 532L843 541 906 209Q908 197 918 192Z" fill="url(#rm-bezel)" stroke="#78879d" strokeWidth=".85"/>
   <path d="m929 207 348-83-58 384-354 11Z" fill="url(#rm-screen)" stroke="#7e91af" strokeOpacity=".32" strokeWidth=".75"/><path d="m920 193 361-91q10-3 10 8" stroke="#dce9fb" strokeOpacity=".5" strokeWidth=".8"/><ellipse cx="1100" cy="158" rx="2.3" ry="1.7" fill="#415570"/><circle cx="1100" cy="158" r=".8" fill="#101b2b"/>
@@ -150,7 +150,7 @@ export function HeroMedia() {
  <g className="rm-hero-lower-card" transform="translate(1158 477) rotate(8)" filter="url(#rm-card-shadow)"><rect x="2" y="4" width="256" height="161" rx="15" fill="#b3c8ff"/><rect width="256" height="161" rx="15" fill="url(#rm-card)" stroke="white" strokeWidth="1.6"/><text x="24" y="31" fill="#141b29" fontSize="12" fontWeight="600">Processos conectados</text><rect x="181" y="17" width="53" height="23" rx="9" fill="#d7f0e8"/><text x="208" y="33" fill="#10ad84" textAnchor="middle" fontSize="12">RM</text>{[17,30,20,12,30,40,24,35,47,49,63,78,91].map((height,i)=><rect key={i} x={28+i*15} y={132-height*.78} width="6" height={height*.78} rx="2" fill="#0750ff" opacity={.25+i*.06}/>)}</g>
  </g></HeroObject>
  <HeroScenery><g className="rm-hero-ground"><path d="M737 774 779 739 844 717 906 674 962 648 1013 660 1077 684 1132 713 1235 732 1288 740 1360 755 1428 774Z" fill="url(#rm-rock)" filter="url(#rm-rock-texture)"/><path d="m888 717 71-66 25 9-31 34 66-15 42 20-75-3-50 28Z" fill="#727f91" opacity=".19"/><ellipse cx="1090" cy="709" rx="88" ry="17" fill="url(#rm-blue-halo)"/><text x="1398" y="691" transform="rotate(-12 1398 691)" fill="#a6b0c1" fontSize="9" letterSpacing="2"><tspan x="1398">TECNOLOGIA</tspan><tspan x="1398" dy="15">QUE IMPULSIONA</tspan><tspan x="1398" dy="15">PESSOAS</tspan></text><path d="m1435 644q12 12 17 25" stroke="#98a5b9"/></g>
- </HeroScenery></svg></div>;
+ </HeroScenery></div></div>;
 }
 
 export function HeroAtmosphere() {
